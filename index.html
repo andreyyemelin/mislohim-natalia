@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои Посылки - Отслеживание заказов</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+        }
+        .glass-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 bg-slate-100 min-h-screen flex flex-col pb-12 text-sm">
+
+    <!-- Header Container -->
+    <header class="sticky top-0 z-30 glass-header border-b border-slate-200 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 bg-emerald-600 text-white rounded-xl flex items-center justify-center shadow-sm text-lg">
+                    <i class="fa-solid fa-box-archive"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-900 tracking-tight">Мои Посылки</h1>
+                    <p class="text-xs text-slate-500">Сервис отслеживания заказов</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-4xl mx-auto px-4 py-5 flex-grow w-full">
+
+        <!-- Search and Quick Stats Section -->
+        <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200/80 mb-5 space-y-3">
+            
+            <!-- Search Input -->
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="searchInput" oninput="renderOrders()" 
+                       placeholder="Поиск по названию, магазину или трек-номеру..." 
+                       class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="flex flex-wrap gap-1.5 pt-0.5" id="filterTabs">
+                <button onclick="setFilter('all')" id="filter-all" class="filter-btn active px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-emerald-600 text-white shadow-sm">
+                    Все (<span id="count-all">0</span>)
+                </button>
+                <button onclick="setFilter('pickup')" id="filter-pickup" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-slate-100 text-slate-700 hover:bg-slate-200">
+                    🎁 В пункте выдачи (<span id="count-pickup">0</span>)
+                </button>
+                <button onclick="setFilter('transit')" id="filter-transit" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-slate-100 text-slate-700 hover:bg-slate-200">
+                    🚚 В пути (<span id="count-transit">0</span>)
+                </button>
+                <button onclick="setFilter('delivered')" id="filter-delivered" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-slate-100 text-slate-700 hover:bg-slate-200">
+                    ✅ Доставлено (<span id="count-delivered">0</span>)
+                </button>
+            </div>
+        </div>
+
+        <!-- Order List Container -->
+        <div id="ordersContainer" class="space-y-4">
+            <!-- Dynamic order cards will be rendered here -->
+        </div>
+
+        <!-- Empty State Message -->
+        <div id="emptyState" class="hidden bg-white rounded-xl p-8 text-center border border-slate-200 shadow-sm my-6">
+            <div class="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-800 mb-1">Список заказов пуст</h3>
+            <p class="text-xs text-slate-500 max-w-sm mx-auto">В данный момент нет отслеживаемых посылок.</p>
+        </div>
+    </main>
+
+    <!-- Notification Toast Container -->
+    <div id="toastNotification" class="fixed bottom-4 right-4 z-50 hidden bg-slate-900 text-white text-xs py-2.5 px-4 rounded-lg shadow-lg flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMessage">Сообщение</span>
+    </div>
+
+    <!-- Footer Information -->
+    <footer class="max-w-4xl mx-auto px-4 py-4 text-center text-slate-400 text-xs">
+        <p>Мои Посылки &copy; Отслеживание покупок</p>
+    </footer>
+
+    <!-- Application Script Logic -->
+    <script>
+        // Data Store - Add/Update orders directly in this array or through AI
+        let orders = [];
+        let currentFilter = 'all';
+
+        // Initialize App on DOM Load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadOrders();
+            renderOrders();
+        });
+
+        // Load Orders
+        function loadOrders() {
+            const saved = localStorage.getItem('my_shipments_data');
+            if (saved) {
+                try {
+                    orders = JSON.parse(saved);
+                } catch (e) {
+                    orders = [];
+                }
+            }
+        }
+
+        // Save Orders to LocalStorage
+        function saveOrders() {
+            localStorage.setItem('my_shipments_data', JSON.stringify(orders));
+        }
+
+        // Toast Notification Helper
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            const toastMsg = document.getElementById('toastMessage');
+            toastMsg.innerText = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Filter Selection
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white', 'shadow-sm');
+                btn.classList.add('bg-slate-100', 'text-slate-700');
+            });
+
+            const activeBtn = document.getElementById(`filter-${filter}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-slate-100', 'text-slate-700');
+                activeBtn.classList.add('bg-emerald-600', 'text-white', 'shadow-sm');
+            }
+
+            renderOrders();
+        }
+
+        // Render List of Orders
+        function renderOrders() {
+            const container = document.getElementById('ordersContainer');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+            container.innerHTML = '';
+
+            // Update tab counters
+            document.getElementById('count-all').innerText = orders.length;
+            document.getElementById('count-pickup').innerText = orders.filter(o => o.status === 'pickup').length;
+            document.getElementById('count-transit').innerText = orders.filter(o => o.status === 'transit').length;
+            document.getElementById('count-delivered').innerText = orders.filter(o => o.status === 'delivered').length;
+
+            // Filter logic
+            const filtered = orders.filter(item => {
+                const matchesFilter = (currentFilter === 'all') || (item.status === currentFilter);
+                const matchesSearch = (item.title && item.title.toLowerCase().includes(searchVal)) || 
+                                      (item.description && item.description.toLowerCase().includes(searchVal)) || 
+                                      (item.store && item.store.toLowerCase().includes(searchVal)) ||
+                                      (item.trackingNumber && item.trackingNumber.toLowerCase().includes(searchVal));
+                return matchesFilter && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+                return;
+            } else {
+                document.getElementById('emptyState').classList.add('hidden');
+            }
+
+            // Render each order card
+            filtered.forEach(order => {
+                const card = document.createElement('div');
+                
+                // Status styles
+                let statusBadgeBg = 'bg-amber-100 text-amber-800 border-amber-300';
+                let statusIcon = 'fa-truck-fast';
+                let statusHeaderColor = 'border-amber-400 bg-amber-50/50';
+
+                if (order.status === 'pickup') {
+                    statusBadgeBg = 'bg-emerald-600 text-white';
+                    statusIcon = 'fa-gift';
+                    statusHeaderColor = 'border-emerald-500 bg-emerald-50/60';
+                } else if (order.status === 'delivered') {
+                    statusBadgeBg = 'bg-slate-200 text-slate-700 border-slate-300';
+                    statusIcon = 'fa-circle-check';
+                    statusHeaderColor = 'border-slate-300 bg-slate-50';
+                }
+
+                // Store badge style
+                let storeBg = 'bg-slate-800 text-white';
+                if (order.store && order.store.toLowerCase().includes('ali')) storeBg = 'bg-red-600 text-white';
+                else if (order.store && order.store.toLowerCase().includes('temu')) storeBg = 'bg-orange-500 text-white';
+                else if (order.store && order.store.toLowerCase().includes('shein')) storeBg = 'bg-black text-white';
+
+                card.className = "bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden transition hover:shadow";
+                card.innerHTML = `
+                    <!-- Header Bar -->
+                    <div class="px-4 py-2 border-b border-l-4 ${statusHeaderColor} flex items-center justify-between gap-2 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full font-medium flex items-center gap-1 ${statusBadgeBg}">
+                                <i class="fa-solid ${statusIcon}"></i>
+                                ${order.statusText || getStatusLabel(order.status)}
+                            </span>
+                            ${order.orderDate ? `<span class="text-slate-500">Заказ от ${escapeHtml(order.orderDate)}</span>` : ''}
+                        </div>
+                        <span class="font-semibold ${storeBg} px-2 py-0.5 rounded text-[11px]">
+                            ${escapeHtml(order.store || 'Заказ')}
+                        </span>
+                    </div>
+
+                    <div class="p-4 space-y-3">
+                        <!-- Item Title & Description -->
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-lg flex-shrink-0 flex items-center justify-center text-lg border border-emerald-100">
+                                <i class="fa-solid ${order.icon || 'fa-box'}"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h2 class="text-sm font-bold text-slate-900 leading-snug">${escapeHtml(order.title)}</h2>
+                                ${order.description ? `<p class="text-xs text-slate-600 mt-0.5">${escapeHtml(order.description)}</p>` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Pickup Box (if status === pickup) -->
+                        ${order.status === 'pickup' ? `
+                            <div class="bg-emerald-50 border border-emerald-300 rounded-lg p-3 text-emerald-950 space-y-1.5 text-xs">
+                                <div class="font-bold text-emerald-900 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-location-dot text-emerald-600"></i>
+                                    Пункт выдачи:
+                                </div>
+                                <p class="font-medium text-slate-800">${escapeHtml(order.pickupLocation || 'Указан в сообщении')}</p>
+                                
+                                ${order.pickupCode ? `
+                                    <div class="pt-1">
+                                        <span class="text-[11px] font-semibold text-slate-500 block">Код получения:</span>
+                                        <span class="text-lg font-mono font-bold text-emerald-700 tracking-wider">${escapeHtml(order.pickupCode)}</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+
+                        <!-- Tracking & Dates Info -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-100">
+                            <div class="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-200/50">
+                                <span class="text-slate-500">Трек-номер:</span>
+                                <div class="flex items-center gap-1.5">
+                                    <strong class="font-mono text-slate-800">${escapeHtml(order.trackingNumber || 'Не указан')}</strong>
+                                    ${order.trackingNumber ? `
+                                        <button onclick="copyText('${order.trackingNumber}')" class="text-emerald-600 hover:text-emerald-800 p-0.5" title="Скопировать">
+                                            <i class="fa-regular fa-copy"></i>
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-200/50">
+                                <span class="text-slate-500">Ожидается:</span>
+                                <strong class="text-slate-800">${escapeHtml(order.expectedDate || 'Скоро')}</strong>
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Status Label Helper
+        function getStatusLabel(status) {
+            if (status === 'pickup') return 'В пункте выдачи';
+            if (status === 'transit') return 'В пути';
+            if (status === 'delivered') return 'Доставлено';
+            return 'В обработке';
+        }
+
+        // Copy Text Function
+        function copyText(text) {
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showToast('Трек-номер скопирован');
+        }
+
+        // Escape HTML helper
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/"/g, "&quot;")
+                      .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
