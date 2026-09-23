@@ -128,8 +128,47 @@
 
     <!-- Application Script Logic -->
     <script>
-        // Data Store - Add/Update orders directly in this array or through AI
-        let orders = [];
+        // Default seed data from provided package labels
+        const defaultOrders = [
+            {
+                id: '1',
+                title: 'Декоративные бусины, формы и основа для воска',
+                description: 'Декоративные бусины, формы для свечей, основа для воска (Temu)',
+                store: 'Temu',
+                trackingNumber: 'TMU011319337',
+                orderDate: '11.09.2026',
+                expectedDate: 'Получено',
+                status: 'delivered',
+                statusText: 'Доставлено',
+                icon: 'fa-gem'
+            },
+            {
+                id: '2',
+                title: 'Гелевый воск для свечей (Jelly Wax)',
+                description: 'Воск для изготовления свечей (50/100/200/500г)',
+                store: 'AliExpress / Почта',
+                trackingNumber: 'RN0041865636Y',
+                orderDate: '12.09.2026',
+                expectedDate: 'Получено',
+                status: 'delivered',
+                statusText: 'Доставлено',
+                icon: 'fa-fire-flame-curved'
+            },
+            {
+                id: '3',
+                title: 'Формы и материалы для рукоделия',
+                description: 'Формы и аксессуары для свечей и поделок',
+                store: 'AliExpress / Почта',
+                trackingNumber: 'RN0041809876Y',
+                orderDate: '11.09.2026',
+                expectedDate: 'Получено',
+                status: 'delivered',
+                statusText: 'Доставлено',
+                icon: 'fa-shapes'
+            }
+        ];
+
+        let orders = [...defaultOrders];
         let currentFilter = 'all';
 
         // Initialize App on DOM Load
@@ -145,8 +184,11 @@
                 try {
                     orders = JSON.parse(saved);
                 } catch (e) {
-                    orders = [];
+                    orders = [...defaultOrders];
                 }
+            } else {
+                orders = [...defaultOrders];
+                saveOrders();
             }
         }
 
