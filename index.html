@@ -279,37 +279,37 @@
                 id: '10',
                 title: 'Растительный глицерин и натуральные аметистовые бусины',
                 description: 'Растительный глицерин GZE (4x118 мл + 2x118 мл, всего 6 шт) и 2 нити натуральных граненых аметистовых бусин (3 мм, ~290 шт)',
-                store: 'Temu',
-                trackingNumber: 'PO-097-03627801406073049',
+                store: 'Temu / Почта',
+                trackingNumber: 'RU002959340Z5',
                 orderDate: '24.09.2026',
-                expectedDate: 'В пути (ожидается трек-номер)',
+                expectedDate: 'В пути в вашу страну',
                 status: 'transit',
                 icon: 'fa-flask',
-                progressStep: 1
+                progressStep: 2
             },
             {
                 id: '9',
                 title: 'Мраморные плитки-наклейки, коврик-пазл и 5D Алмазная мозаика «Сердце»',
                 description: 'Самоклеящиеся мраморные настенные наклейки (30x30 см, 20 шт / 2 пачки), пушистый коврик-пазл для спальни (20 шт) и картина 5D алмазной вышивки «Закат и волна» (40x40 см)',
-                store: 'Temu',
-                trackingNumber: 'PO-097-18058934441593049',
+                store: 'Temu / Почта',
+                trackingNumber: 'RU002959340Z5',
                 orderDate: '23.09.2026',
-                expectedDate: 'В пути (ожидается трек-номер)',
+                expectedDate: 'В пути в вашу страну',
                 status: 'transit',
                 icon: 'fa-border-all',
-                progressStep: 1
+                progressStep: 2
             },
             {
                 id: '8',
                 title: 'Черный и белый агат, натуральный жемчуг и граненые бусины',
                 description: 'Черный агат (4мм), граненый «черный рис», матовый белый агат (6мм), пресноводный жемчуг (монеты, 4-5мм, 4мм, пластины) и 10 нитей черных глянцевых бусин (4мм)',
-                store: 'Temu',
-                trackingNumber: 'PO-097-07063848643193049',
+                store: 'Temu / Почта',
+                trackingNumber: 'RU002959340Z5',
                 orderDate: '22.09.2026',
-                expectedDate: 'В пути (ожидается трек-номер)',
+                expectedDate: 'В пути в вашу страну',
                 status: 'transit',
                 icon: 'fa-gem',
-                progressStep: 1
+                progressStep: 2
             },
             {
                 id: '7',
@@ -417,6 +417,23 @@
             const item4 = orders.find(o => o.trackingNumber === 'RS13360288896Y');
             if (item4 && item4.status !== 'pickup') {
                 item4.status = 'pickup';
+                saveToStorage();
+            }
+
+            // Migration fix: update consolidated Temu orders with new tracking number RU002959340Z5
+            let migratedCount = 0;
+            orders.forEach(o => {
+                if (o.trackingNumber === 'PO-097-03627801406073049' ||
+                    o.trackingNumber === 'PO-097-18058934441593049' ||
+                    o.trackingNumber === 'PO-097-07063848643193049') {
+                    o.trackingNumber = 'RU002959340Z5';
+                    o.store = 'Temu / Почта';
+                    o.expectedDate = 'В пути в вашу страну';
+                    o.progressStep = 2;
+                    migratedCount++;
+                }
+            });
+            if (migratedCount > 0) {
                 saveToStorage();
             }
 
