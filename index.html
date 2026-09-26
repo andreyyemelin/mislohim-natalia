@@ -276,6 +276,18 @@
         // Initial Dataset
         const defaultOrders = [
             {
+                id: '11',
+                title: 'Запчасти и аксессуары для робота-пылесоса (23 шт.)',
+                description: 'Комплект аксессуаров: основная и боковые щетки, HEPA-фильтры, мешки для пыли и салфетки (RongHai Sweeping Robot Store, 83.57 ₪)',
+                store: 'AliExpress',
+                trackingNumber: '1122947694245953 (№ заказа)',
+                orderDate: '26.09.2026',
+                expectedDate: 'В обработке продавцом',
+                status: 'transit',
+                icon: 'fa-robot',
+                progressStep: 1
+            },
+            {
                 id: '10',
                 title: 'Растительный глицерин и натуральные аметистовые бусины',
                 description: 'Растительный глицерин GZE (4x118 мл + 2x118 мл, всего 6 шт) и 2 нити натуральных граненых аметистовых бусин (3 мм, ~290 шт)',
@@ -433,6 +445,14 @@
                     migratedCount++;
                 }
             });
+
+            // Automatically append new order if not present in existing localStorage
+            const hasRobotOrder = orders.some(o => o.id === '11' || o.trackingNumber.includes('1122947694245953'));
+            if (!hasRobotOrder) {
+                orders.unshift(defaultOrders[0]);
+                migratedCount++;
+            }
+
             if (migratedCount > 0) {
                 saveToStorage();
             }
