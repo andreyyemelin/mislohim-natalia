@@ -276,6 +276,18 @@
         // Initial Dataset
         const defaultOrders = [
             {
+                id: '12',
+                title: 'Жемчуг, глицерин, эфирные масла и автополив растений',
+                description: 'Пресноводный жемчуг (4 мм, 2x50 шт), растительный глицерин GZE (3 шт), набор эфирных масел (12 шт) и системы автополива растений (5 колышков + 4 насадки)',
+                store: 'Temu',
+                trackingNumber: 'PO-097-20120423096953049',
+                orderDate: '27.09.2026',
+                expectedDate: 'В обработке продавцом',
+                status: 'transit',
+                icon: 'fa-seedling',
+                progressStep: 1
+            },
+            {
                 id: '11',
                 title: 'Запчасти и аксессуары для робота-пылесоса (23 шт.)',
                 description: 'Комплект аксессуаров: основная и боковые щетки, HEPA-фильтры, мешки для пыли и салфетки (RongHai Sweeping Robot Store, 83.57 ₪)',
@@ -422,6 +434,12 @@
             // Automatically append new order if not present in existing localStorage
             const hasRobotOrder = orders.some(o => o.id === '11' || o.trackingNumber.includes('1122947694245953'));
             if (!hasRobotOrder) {
+                orders.unshift(defaultOrders[1]);
+                migratedCount++;
+            }
+
+            const hasTemuNewOrder = orders.some(o => o.id === '12' || o.trackingNumber.includes('PO-097-20120423096953049'));
+            if (!hasTemuNewOrder) {
                 orders.unshift(defaultOrders[0]);
                 migratedCount++;
             }
