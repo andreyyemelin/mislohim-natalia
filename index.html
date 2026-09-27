@@ -342,45 +342,9 @@
                 store: 'Temu / Почта',
                 trackingNumber: 'RU002884047Z5',
                 orderDate: '19.09.2026',
-                expectedDate: 'В пути в вашу страну',
-                status: 'transit',
-                icon: 'fa-flask',
-                progressStep: 2
-            },
-            {
-                id: '5',
-                title: 'Набор для свечей, гелевый воск, форма «Сердце» и спрей с кистью',
-                description: 'Стеклянные вазочки (4 шт), силиконовая форма «Сердце», гелевый воск (500г), спрей для снятия с формы (150мл) + кисть',
-                store: 'Temu',
-                trackingNumber: 'TMU011357692',
-                orderDate: '23.09.2026',
-                expectedDate: 'В пути',
-                status: 'transit',
-                icon: 'fa-spray-can',
-                progressStep: 2
-            },
-            {
-                id: '4',
-                title: 'Бусины-разделители для ювелирных изделий (2 мм)',
-                description: 'Бусины-разделители серебристые (2000 шт) и бронзовые (2000 шт) для изготовления украшений',
-                store: 'AliExpress',
-                trackingNumber: 'RS13360288896Y',
-                orderDate: '13.09.2026',
-                expectedDate: 'Ожидает получения (Готово к выдаче)',
-                status: 'pickup',
-                icon: 'fa-cubes',
-                progressStep: 3
-            },
-            {
-                id: '3',
-                title: 'Декоративные бусины, формы и основа для воска',
-                description: 'Декоративные бусины, формы для свечей, основа для воска',
-                store: 'Temu',
-                trackingNumber: 'TMU011319337',
-                orderDate: '11.09.2026',
                 expectedDate: 'Получено',
                 status: 'delivered',
-                icon: 'fa-gem',
+                icon: 'fa-flask',
                 progressStep: 4
             },
             {
@@ -429,6 +393,15 @@
             const item4 = orders.find(o => o.trackingNumber === 'RS13360288896Y');
             if (item4 && item4.status !== 'pickup') {
                 item4.status = 'pickup';
+                saveToStorage();
+            }
+
+            // Update RU002884047Z5 to delivered
+            const item6 = orders.find(o => o.trackingNumber === 'RU002884047Z5');
+            if (item6 && item6.status !== 'delivered') {
+                item6.status = 'delivered';
+                item6.expectedDate = 'Получено';
+                item6.progressStep = 4;
                 saveToStorage();
             }
 
