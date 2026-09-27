@@ -291,13 +291,13 @@
                 id: '11',
                 title: 'Запчасти и аксессуары для робота-пылесоса (23 шт.)',
                 description: 'Комплект аксессуаров: основная и боковые щетки, HEPA-фильтры, мешки для пыли и салфетки (RongHai Sweeping Robot Store, 83.57 ₪)',
-                store: 'AliExpress',
-                trackingNumber: '1122947694245953 (№ заказа)',
+                store: 'AliExpress / Курьер',
+                trackingNumber: 'GH001007501',
                 orderDate: '26.09.2026',
-                expectedDate: 'В обработке продавцом',
+                expectedDate: 'В пути (курьерская доставка)',
                 status: 'transit',
                 icon: 'fa-robot',
-                progressStep: 1
+                progressStep: 2
             },
             {
                 id: '10',
@@ -399,6 +399,16 @@
                 }
             } else {
                 orders = [...defaultOrders];
+            }
+
+            // Migration fix: Update AliExpress Robot order with new door-to-door tracking number
+            const robotOrder = orders.find(o => o.id === '11' || (o.trackingNumber && o.trackingNumber.includes('1122947694245953')));
+            if (robotOrder && robotOrder.trackingNumber !== 'GH001007501') {
+                robotOrder.trackingNumber = 'GH001007501';
+                robotOrder.store = 'AliExpress / Курьер';
+                robotOrder.expectedDate = 'В пути (курьерская доставка)';
+                robotOrder.progressStep = 2;
+                saveToStorage();
             }
 
             // Migration fix: update RS13360288896Y to 'pickup' status
