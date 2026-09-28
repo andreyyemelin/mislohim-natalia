@@ -279,13 +279,13 @@
                 id: '12',
                 title: 'Жемчуг, глицерин, эфирные масла и автополив растений',
                 description: 'Пресноводный жемчуг (4 мм, 2x50 шт), растительный глицерин GZE (3 шт), набор эфирных масел (12 шт) и системы автополива растений (5 колышков + 4 насадки)',
-                store: 'Temu',
-                trackingNumber: 'PO-097-20120423096953049',
+                store: 'Temu / Почта',
+                trackingNumber: 'RU002975720Z5',
                 orderDate: '27.09.2026',
-                expectedDate: 'В обработке продавцом',
+                expectedDate: 'В пути в вашу страну',
                 status: 'transit',
                 icon: 'fa-seedling',
-                progressStep: 1
+                progressStep: 2
             },
             {
                 id: '11',
@@ -411,6 +411,16 @@
                 saveToStorage();
             }
 
+            // Migration fix: Update Temu order 12 with new tracking number RU002975720Z5
+            const temuOrder12 = orders.find(o => o.id === '12' || (o.trackingNumber && (o.trackingNumber.includes('PO-097-20120423096953049') || o.trackingNumber === 'RU002975720Z5')));
+            if (temuOrder12 && temuOrder12.trackingNumber !== 'RU002975720Z5') {
+                temuOrder12.trackingNumber = 'RU002975720Z5';
+                temuOrder12.store = 'Temu / Почта';
+                temuOrder12.expectedDate = 'В пути в вашу страну';
+                temuOrder12.progressStep = 2;
+                saveToStorage();
+            }
+
             // Migration fix: update RS13360288896Y to 'pickup' status
             const item4 = orders.find(o => o.trackingNumber === 'RS13360288896Y');
             if (item4 && item4.status !== 'pickup') {
@@ -448,7 +458,7 @@
                 migratedCount++;
             }
 
-            const hasTemuNewOrder = orders.some(o => o.id === '12' || o.trackingNumber.includes('PO-097-20120423096953049'));
+            const hasTemuNewOrder = orders.some(o => o.id === '12' || o.trackingNumber.includes('PO-097-20120423096953049') || o.trackingNumber.includes('RU002975720Z5'));
             if (!hasTemuNewOrder) {
                 orders.unshift(defaultOrders[0]);
                 migratedCount++;
