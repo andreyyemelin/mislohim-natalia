@@ -276,6 +276,18 @@
         // Initial Dataset
         const defaultOrders = [
             {
+                id: '13',
+                title: 'Деревянные модели парусников и десертные вилочки',
+                description: '2 винтажные деревянные модели кораблей/парусников и одноразовые прозрачные вилки для фруктов и десертов (100 шт.)',
+                store: 'Temu / Почта',
+                trackingNumber: 'PO-097-00879063982713049',
+                orderDate: '28.09.2026',
+                expectedDate: 'В обработке / Ожидает отправки',
+                status: 'transit',
+                icon: 'fa-ship',
+                progressStep: 1
+            },
+            {
                 id: '12',
                 title: 'Жемчуг, глицерин, эфирные масла и автополив растений',
                 description: 'Пресноводный жемчуг (4 мм, 2x50 шт), растительный глицерин GZE (3 шт), набор эфирных масел (12 шт) и системы автополива растений (5 колышков + 4 насадки)',
@@ -452,14 +464,14 @@
             });
 
             // Automatically append new order if not present in existing localStorage
-            const hasRobotOrder = orders.some(o => o.id === '11' || o.trackingNumber.includes('1122947694245953'));
-            if (!hasRobotOrder) {
+            const hasTemuNewOrder = orders.some(o => o.id === '12' || o.trackingNumber.includes('PO-097-20120423096953049') || o.trackingNumber === 'RU002975720Z5');
+            if (!hasTemuNewOrder) {
                 orders.unshift(defaultOrders[1]);
                 migratedCount++;
             }
 
-            const hasTemuNewOrder = orders.some(o => o.id === '12' || o.trackingNumber.includes('PO-097-20120423096953049') || o.trackingNumber.includes('RU002975720Z5'));
-            if (!hasTemuNewOrder) {
+            const hasTemuShipOrder = orders.some(o => o.trackingNumber === 'PO-097-00879063982713049');
+            if (!hasTemuShipOrder) {
                 orders.unshift(defaultOrders[0]);
                 migratedCount++;
             }
