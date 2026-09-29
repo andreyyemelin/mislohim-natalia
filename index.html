@@ -92,6 +92,10 @@
                     <p class="text-xs text-slate-500 font-medium mt-1">Трекер заказов и доставок</p>
                 </div>
             </div>
+            <button onclick="openAddModal()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-sm transition active:scale-95">
+                <i class="fa-solid fa-plus"></i>
+                <span class="hidden sm:inline">Добавить посылку</span>
+            </button>
         </div>
     </header>
 
@@ -228,25 +232,26 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Магазин</label>
+                        <label class="block font-semibold text-slate-700 mb-1">Магазин / Перевозчик</label>
                         <select id="newStore" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500">
+                            <option value="Temu / Gaash">Temu / Gaash</option>
                             <option value="Temu / Почта">Temu / Почта</option>
                             <option value="Temu">Temu</option>
+                            <option value="AliExpress / Курьер">AliExpress / Курьер</option>
                             <option value="AliExpress / Почта">AliExpress / Почта</option>
-                            <option value="AliExpress">AliExpress</option>
                         </select>
                     </div>
 
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">Дата заказа</label>
-                        <input type="text" id="newOrderDate" placeholder="19.09.2026" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="newOrderDate" placeholder="28.09.2026" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">Трек-номер *</label>
-                        <input type="text" id="newTracking" required placeholder="RU000000000Z5" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 font-mono">
+                        <input type="text" id="newTracking" required placeholder="TMU0115..." class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 font-mono">
                     </div>
 
                     <div>
@@ -276,16 +281,28 @@
         // Initial Dataset
         const defaultOrders = [
             {
-                id: '13',
-                title: 'Деревянные модели парусников и десертные вилочки',
-                description: '2 винтажные деревянные модели кораблей/парусников и одноразовые прозрачные вилки для фруктов и десертов (100 шт.)',
-                store: 'Temu / Почта',
-                trackingNumber: 'PO-097-00879063982713049',
+                id: '13-1',
+                title: 'Деревянная модель парусника (Ретро декор)',
+                description: 'Посылка 1 из 2 (Заказ PO-097-00879063982713049). Деревянная ретро модель парусника ручной работы.',
+                store: 'Temu / Gaash',
+                trackingNumber: 'TMU011526251',
                 orderDate: '28.09.2026',
-                expectedDate: 'В обработке / Ожидает отправки',
+                expectedDate: 'В пути в вашу страну (9-20 окт.)',
                 status: 'transit',
                 icon: 'fa-ship',
-                progressStep: 1
+                progressStep: 2
+            },
+            {
+                id: '13-2',
+                title: 'Большая винтажная модель корабля + 100 десертных вилок',
+                description: 'Посылка 2 из 2 (Заказ PO-097-00879063982713049). Винтажная деревянная модель корабля (50.01x10.01x45.01 см) и 100 одноразовых прозрачных вилочек (1.433 кг, 700x650 мм).',
+                store: 'Temu / Gaash',
+                trackingNumber: 'TMU011533690',
+                orderDate: '28.09.2026',
+                expectedDate: 'В пути в вашу страну (9-20 окт.)',
+                status: 'transit',
+                icon: 'fa-anchor',
+                progressStep: 2
             },
             {
                 id: '12',
@@ -413,7 +430,21 @@
                 orders = [...defaultOrders];
             }
 
-            // Migration fix: Update AliExpress Robot order with new door-to-door tracking number
+            // Migration logic: Replace old unsplit order PO-097-00879063982713049 with 2 split packages (TMU011526251 & TMU011533690)
+            const oldShipIndex = orders.findIndex(o => o.trackingNumber === 'PO-097-00879063982713049' || o.id === '13');
+            if (oldShipIndex !== -1) {
+                orders.splice(oldShipIndex, 1, defaultOrders[0], defaultOrders[1]);
+                saveToStorage();
+            } else {
+                const hasTmu1 = orders.some(o => o.trackingNumber === 'TMU011526251');
+                const hasTmu2 = orders.some(o => o.trackingNumber === 'TMU011533690');
+                if (!hasTmu1 || !hasTmu2) {
+                    orders.unshift(defaultOrders[0], defaultOrders[1]);
+                    saveToStorage();
+                }
+            }
+
+            // Update AliExpress Robot order with new door-to-door tracking number
             const robotOrder = orders.find(o => o.id === '11' || (o.trackingNumber && o.trackingNumber.includes('1122947694245953')));
             if (robotOrder && robotOrder.trackingNumber !== 'GH001007501') {
                 robotOrder.trackingNumber = 'GH001007501';
@@ -423,60 +454,13 @@
                 saveToStorage();
             }
 
-            // Migration fix: Update Temu order 12 with new tracking number RU002975720Z5
+            // Update Temu order 12 with new tracking number RU002975720Z5
             const temuOrder12 = orders.find(o => o.id === '12' || (o.trackingNumber && (o.trackingNumber.includes('PO-097-20120423096953049') || o.trackingNumber === 'RU002975720Z5')));
             if (temuOrder12 && temuOrder12.trackingNumber !== 'RU002975720Z5') {
                 temuOrder12.trackingNumber = 'RU002975720Z5';
                 temuOrder12.store = 'Temu / Почта';
                 temuOrder12.expectedDate = 'В пути в вашу страну';
                 temuOrder12.progressStep = 2;
-                saveToStorage();
-            }
-
-            // Migration fix: update RS13360288896Y to 'pickup' status
-            const item4 = orders.find(o => o.trackingNumber === 'RS13360288896Y');
-            if (item4 && item4.status !== 'pickup') {
-                item4.status = 'pickup';
-                saveToStorage();
-            }
-
-            // Update RU002884047Z5 to delivered
-            const item6 = orders.find(o => o.trackingNumber === 'RU002884047Z5');
-            if (item6 && item6.status !== 'delivered') {
-                item6.status = 'delivered';
-                item6.expectedDate = 'Получено';
-                item6.progressStep = 4;
-                saveToStorage();
-            }
-
-            // Migration fix: update consolidated Temu orders with new tracking number RU002959340Z5
-            let migratedCount = 0;
-            orders.forEach(o => {
-                if (o.trackingNumber === 'PO-097-03627801406073049' ||
-                    o.trackingNumber === 'PO-097-18058934441593049' ||
-                    o.trackingNumber === 'PO-097-07063848643193049') {
-                    o.trackingNumber = 'RU002959340Z5';
-                    o.store = 'Temu / Почта';
-                    o.expectedDate = 'В пути в вашу страну';
-                    o.progressStep = 2;
-                    migratedCount++;
-                }
-            });
-
-            // Automatically append new order if not present in existing localStorage
-            const hasTemuNewOrder = orders.some(o => o.id === '12' || o.trackingNumber.includes('PO-097-20120423096953049') || o.trackingNumber === 'RU002975720Z5');
-            if (!hasTemuNewOrder) {
-                orders.unshift(defaultOrders[1]);
-                migratedCount++;
-            }
-
-            const hasTemuShipOrder = orders.some(o => o.trackingNumber === 'PO-097-00879063982713049');
-            if (!hasTemuShipOrder) {
-                orders.unshift(defaultOrders[0]);
-                migratedCount++;
-            }
-
-            if (migratedCount > 0) {
                 saveToStorage();
             }
 
@@ -593,6 +577,12 @@
             if (isPickup) cardIconBg = 'bg-blue-50 text-blue-600 border-blue-100';
             if (isDelivered) cardIconBg = 'bg-emerald-50 text-emerald-600 border-emerald-100';
 
+            // Track link generator
+            let trackUrl = 'https://israelpost.co.il';
+            if (order.store.toLowerCase().includes('gaash') || order.trackingNumber.startsWith('TMU')) {
+                trackUrl = 'https://www.gaashworldwide.com/';
+            }
+
             return `
                 <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden transition-all duration-200 hover:shadow-md animate-fade-in">
                     <!-- Top Header Bar -->
@@ -654,7 +644,7 @@
                                     <i class="fa-regular fa-copy text-emerald-600"></i>
                                     <span class="hidden sm:inline">Копировать</span>
                                 </button>
-                                <a href="https://israelpost.co.il" target="_blank" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg" title="Открыть сайт почты">
+                                <a href="${trackUrl}" target="_blank" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg" title="Открыть сайт отслеживания">
                                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                 </a>
                             </div>
