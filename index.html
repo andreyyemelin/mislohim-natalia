@@ -304,10 +304,10 @@
                 store: 'Temu / Почта',
                 trackingNumber: 'RU002936565Z5',
                 orderDate: '19.09.2026',
-                expectedDate: 'В пути в вашу страну',
-                status: 'transit',
+                expectedDate: 'Ожидает в пункте выдачи',
+                status: 'pickup',
                 icon: 'fa-gem',
-                progressStep: 2
+                progressStep: 3
             },
             {
                 id: '6',
@@ -393,6 +393,15 @@
                 temuOrder12.store = 'Temu / Почта';
                 temuOrder12.expectedDate = 'В пути в вашу страну';
                 temuOrder12.progressStep = 2;
+                saveToStorage();
+            }
+
+            // Update RU002936565Z5 status to pickup
+            const order7 = orders.find(o => o.id === '7' || o.trackingNumber === 'RU002936565Z5');
+            if (order7 && order7.status !== 'pickup') {
+                order7.status = 'pickup';
+                order7.expectedDate = 'Ожидает в пункте выдачи';
+                order7.progressStep = 3;
                 saveToStorage();
             }
 
