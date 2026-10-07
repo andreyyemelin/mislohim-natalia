@@ -280,10 +280,10 @@
                 store: 'Temu / Почта',
                 trackingNumber: 'RU002959340Z5',
                 orderDate: '24.09.2026',
-                expectedDate: 'Ожидает получения',
-                status: 'pickup',
+                expectedDate: 'Получено',
+                status: 'delivered',
                 icon: 'fa-flask',
-                progressStep: 3
+                progressStep: 4
             },
             {
                 id: '9',
@@ -292,10 +292,10 @@
                 store: 'Temu / Почта',
                 trackingNumber: 'RU002959340Z5',
                 orderDate: '23.09.2026',
-                expectedDate: 'Ожидает получения',
-                status: 'pickup',
+                expectedDate: 'Получено',
+                status: 'delivered',
                 icon: 'fa-border-all',
-                progressStep: 3
+                progressStep: 4
             },
             {
                 id: '8',
@@ -304,18 +304,6 @@
                 store: 'Temu / Почта',
                 trackingNumber: 'RU002959340Z5',
                 orderDate: '22.09.2026',
-                expectedDate: 'Ожидает получения',
-                status: 'pickup',
-                icon: 'fa-gem',
-                progressStep: 3
-            },
-            {
-                id: '7',
-                title: 'Набор бусин из натуральных камней и 3D Маркеры',
-                description: 'Розовый нефрит, фиолетовый ангелит халцедон (4мм & 6мм), лаванда аметист (6мм), аметистовые бусины (4мм & 6мм) и набор 3D маркеров (24 цвета)',
-                store: 'Temu / Почта',
-                trackingNumber: 'RU002936565Z5',
-                orderDate: '19.09.2026',
                 expectedDate: 'Получено',
                 status: 'delivered',
                 icon: 'fa-gem',
@@ -423,13 +411,13 @@
                 saveToStorage();
             }
 
-            // Update RU002959340Z5 status to pickup
+            // Update RU002959340Z5 status to delivered
             let updated593 = false;
             orders.forEach(o => {
-                if (o.trackingNumber === 'RU002959340Z5' && o.status !== 'pickup') {
-                    o.status = 'pickup';
-                    o.expectedDate = 'Ожидает получения';
-                    o.progressStep = 3;
+                if (o.trackingNumber === 'RU002959340Z5' && o.status !== 'delivered') {
+                    o.status = 'delivered';
+                    o.expectedDate = 'Получено';
+                    o.progressStep = 4;
                     updated593 = true;
                 }
             });
