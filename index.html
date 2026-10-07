@@ -268,21 +268,9 @@
                 store: 'AliExpress / Курьер',
                 trackingNumber: 'GH001007501',
                 orderDate: '26.09.2026',
-                expectedDate: 'В пути (курьерская доставка)',
-                status: 'transit',
-                icon: 'fa-robot',
-                progressStep: 2
-            },
-            {
-                id: '10',
-                title: 'Растительный глицерин и натуральные аметистовые бусины',
-                description: 'Растительный глицерин GZE (4x118 мл + 2x118 мл, всего 6 шт) и 2 нити натуральных граненых аметистовых бусин (3 мм, ~290 шт)',
-                store: 'Temu / Почта',
-                trackingNumber: 'RU002959340Z5',
-                orderDate: '24.09.2026',
                 expectedDate: 'Получено',
                 status: 'delivered',
-                icon: 'fa-flask',
+                icon: 'fa-robot',
                 progressStep: 4
             },
             {
@@ -381,14 +369,14 @@
                     saveToStorage();
                 }
             }
-
-            // Update AliExpress Robot order with new door-to-door tracking number
-            const robotOrder = orders.find(o => o.id === '11' || (o.trackingNumber && o.trackingNumber.includes('1122947694245953')));
-            if (robotOrder && robotOrder.trackingNumber !== 'GH001007501') {
+            // Update AliExpress Robot order with new status (delivered)
+            const robotOrder = orders.find(o => o.id === '11' || (o.trackingNumber && o.trackingNumber.includes('GH001007501')));
+            if (robotOrder && (robotOrder.status !== 'delivered' || robotOrder.trackingNumber !== 'GH001007501')) {
                 robotOrder.trackingNumber = 'GH001007501';
                 robotOrder.store = 'AliExpress / Курьер';
-                robotOrder.expectedDate = 'В пути (курьерская доставка)';
-                robotOrder.progressStep = 2;
+                robotOrder.status = 'delivered';
+                robotOrder.expectedDate = 'Получено';
+                robotOrder.progressStep = 4;
                 saveToStorage();
             }
 
