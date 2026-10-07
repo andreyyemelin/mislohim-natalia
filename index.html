@@ -214,6 +214,18 @@
         // Initial Dataset
         const defaultOrders = [
             {
+                id: '14',
+                title: 'Бахилы (2 пары), розовый жемчуг и чехлы для продуктов',
+                description: 'Заказ AliExpress Choice (4 позиции): непромокаемые бахилы (White XXL & Grey L), розовые жемчужные бусины (4 мм и 6 мм, по 2 шт) и эластичные чехлы для продуктов (50 шт, 70 см). Ожидаемая доставка: 18-20 октября.',
+                store: 'AliExpress / Choice',
+                trackingNumber: '1123137782755953, 1123137782775953, 1123188296825953, 1123188296875953',
+                orderDate: '06.10.2026',
+                expectedDate: 'В пути (18-20 окт.)',
+                status: 'transit',
+                icon: 'fa-shoe-prints',
+                progressStep: 2
+            },
+            {
                 id: '13-1',
                 title: 'Деревянная модель парусника (Ретро декор)',
                 description: 'Посылка 1 из 2 (Заказ PO-097-00879063982713049). Деревянная ретро модель парусника ручной работы.',
@@ -360,6 +372,12 @@
                 }
             } else {
                 orders = [...defaultOrders];
+            }
+
+            const hasOrder14 = orders.some(o => o.id === '14' || (o.trackingNumber && o.trackingNumber.includes('1123137782755953')));
+            if (!hasOrder14) {
+                orders.unshift(defaultOrders[0]);
+                saveToStorage();
             }
 
             // Migration logic: Replace old unsplit order PO-097-00879063982713049 with 2 split packages
@@ -587,13 +605,13 @@
                         </div>
 
                         <!-- Tracking Number Bar & Copy Action -->
-                        <div class="flex items-center justify-between bg-slate-50 rounded-xl p-2.5 border border-slate-200/60 text-xs">
-                            <div class="flex items-center gap-2">
-                                <span class="text-slate-400 font-medium">Трек-номер:</span>
-                                <strong class="font-mono font-bold text-slate-800 text-xs sm:text-sm tracking-wide">${escapeHtml(order.trackingNumber)}</strong>
+                        <div class="flex flex-wrap sm:flex-nowrap items-center justify-between bg-slate-50 rounded-xl p-2.5 border border-slate-200/60 text-xs gap-2">
+                            <div class="flex items-start sm:items-center gap-2 min-w-0 flex-1">
+                                <span class="text-slate-400 font-medium shrink-0">Трек-номер:</span>
+                                <strong class="font-mono font-bold text-slate-800 text-xs tracking-tight break-all">${escapeHtml(order.trackingNumber)}</strong>
                             </div>
 
-                            <div class="flex items-center gap-1">
+                            <div class="flex items-center gap-1 shrink-0 self-end sm:self-auto">
                                 <button onclick="copyTracking('${order.trackingNumber}')" class="px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg font-semibold flex items-center gap-1 transition active:scale-95 shadow-2xs" title="Скопировать">
                                     <i class="fa-regular fa-copy text-emerald-600"></i>
                                     <span class="hidden sm:inline">Копировать</span>
