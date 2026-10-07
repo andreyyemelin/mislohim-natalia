@@ -214,6 +214,18 @@
         // Initial Dataset
         const defaultOrders = [
             {
+                id: '15',
+                title: 'Стеклянные подсвечники, корейский крем, аппаратура для ногтей и смеситель',
+                description: 'Заказ Temu (6 позиций): 12 стеклянных подсвечников (6+6), 100 ватных палочек, корейский крем для лица (50г), набор для изготовления 56 сферических свечей (6 стаканов + 50 аксессуаров), беспроводной полировщик для ногтей и смеситель 360° для раковины (с 2 шлангами 80 см).',
+                store: 'Temu / Почта',
+                trackingNumber: 'PO-097-13248476590713049',
+                orderDate: '07.10.2026',
+                expectedDate: 'В пути в вашу страну',
+                status: 'transit',
+                icon: 'fa-box-open',
+                progressStep: 1
+            },
+            {
                 id: '14',
                 title: 'Бахилы (2 пары), розовый жемчуг и чехлы для продуктов',
                 description: 'Заказ AliExpress Choice (4 позиции): непромокаемые бахилы (White XXL & Grey L), розовые жемчужные бусины (4 мм и 6 мм, по 2 шт) и эластичные чехлы для продуктов (50 шт, 70 см). Ожидаемая доставка: 18-20 октября.',
@@ -348,6 +360,12 @@
                 }
             } else {
                 orders = [...defaultOrders];
+            }
+
+            const hasOrder15 = orders.some(o => o.id === '15' || (o.trackingNumber && o.trackingNumber.includes('PO-097-13248476590713049')));
+            if (!hasOrder15) {
+                orders.unshift(defaultOrders[0]);
+                saveToStorage();
             }
 
             const hasOrder14 = orders.some(o => o.id === '14' || (o.trackingNumber && o.trackingNumber.includes('1123137782755953')));
