@@ -230,7 +230,7 @@
                 title: 'Бахилы (2 пары), розовый жемчуг и чехлы для продуктов',
                 description: 'Заказ AliExpress Choice (4 позиции): непромокаемые бахилы (White XXL & Grey L), розовые жемчужные бусины (4 мм и 6 мм, по 2 шт) и эластичные чехлы для продуктов (50 шт, 70 см). Ожидаемая доставка: 18-20 октября.',
                 store: 'AliExpress / Choice',
-                trackingNumber: '1123137782755953, 1123137782775953, 1123188296825953, 1123188296875953',
+                trackingNumber: 'RS1343123456Y',
                 orderDate: '06.10.2026',
                 expectedDate: 'В пути (18-20 окт.)',
                 status: 'transit',
@@ -360,6 +360,13 @@
                 }
             } else {
                 orders = [...defaultOrders];
+            }
+
+            // Update order 14 tracking number if old multi-numbers exist
+            const order14Obj = orders.find(o => o.id === '14');
+            if (order14Obj && order14Obj.trackingNumber && order14Obj.trackingNumber.includes('1123137782755953')) {
+                order14Obj.trackingNumber = 'RS1343123456Y';
+                saveToStorage();
             }
 
             const hasOrder15 = orders.some(o => o.id === '15' || (o.trackingNumber && o.trackingNumber.includes('PO-097-13248476590713049')));
