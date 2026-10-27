@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мои Посылки - Отслеживание Заказов</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="pack.png">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons CDN -->
@@ -474,7 +476,7 @@
             const templateParams = {
                 tracking_number: trackingNumber,
                 status: statusText,
-                to_email: 'andreyy0902@gmail.com' // כתובת המייל שלך לקבלת ההתרעות
+                to_email: 'andreyy0902@gmail.com'
             };
 
             emailjs.send('service_o9el6xc', templateId, templateParams)
