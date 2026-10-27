@@ -11,6 +11,14 @@
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init("-AW0e6VNEgzS-fTYx");
+        })();
+    </script>
+
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -425,6 +433,9 @@
                 }
                 closeOrderModal();
                 loadOrdersFromFirebase();
+
+                // Send EmailJS for Admin action (template_yuqkr5c)
+                sendEmailNotification('template_yuqkr5c', trackingNumber, getStatusText(status));
             } catch (e) {
                 console.error("Error saving document: ", e);
                 showToast("Ошибка сохранения в Firebase");
@@ -443,16 +454,43 @@
             }
         }
 
-        // User confirmation button: Marks package as 'delivered' when it's in 'pickup' or 'home_delivery'
-        async function markAsReceived(firebaseId) {
+        // User confirmation button (Grandma): Marks package as 'delivered' and sends template_au325wt
+        async function markAsReceived(firebaseId, trackingNumber) {
             try {
                 await window.updateDoc(window.doc(window.db, "shipments", firebaseId), { status: 'delivered' });
                 showToast("Посылка отмечена как полученная!");
                 loadOrdersFromFirebase();
+
+                // Send EmailJS for Grandma action (template_au325wt)
+                sendEmailNotification('template_au325wt', trackingNumber, '✅ Доставлено');
             } catch (e) {
                 console.error("Error updating status:", e);
                 showToast("Ошибка обновления статуса");
             }
+        }
+
+        // EmailJS Sender Helper function
+        function sendEmailNotification(templateId, trackingNumber, statusText) {
+            const templateParams = {
+                tracking_number: trackingNumber,
+                status: statusText,
+                to_email: 'andreyy0902@gmail.com' // כתובת המייל שלך לקבלת ההתרעות
+            };
+
+            emailjs.send('service_o9el6xc', templateId, templateParams)
+                .then(function(response) {
+                    console.log('SUCCESS!', response.status, response.text);
+                }, function(error) {
+                    console.log('FAILED...', error);
+                });
+        }
+
+        function getStatusText(status) {
+            if (status === 'transit') return '🚚 В пути';
+            if (status === 'pickup') return '📦 Ожидает получения';
+            if (status === 'home_delivery') return '🏠 В дороге до дома';
+            if (status === 'delivered') return '✅ Доставлено';
+            return status;
         }
 
         function clearSearch() {
@@ -557,7 +595,6 @@
                 trackUrl = 'https://www.gaashworldwide.com/';
             }
 
-            // Show receive button only if status is pickup or home_delivery
             const canUserMarkReceived = (isPickup || isHomeDelivery);
 
             return `
@@ -614,7 +651,7 @@
 
                             <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-auto">
                                 ${canUserMarkReceived ? `
-                                    <button onclick="markAsReceived('${order.firebaseId}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1.5 transition active:scale-95 shadow-xs animate-pulse">
+                                    <button onclick="markAsReceived('${order.firebaseId}', '${escapeHtml(order.trackingNumber)}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1.5 transition active:scale-95 shadow-xs animate-pulse">
                                         <i class="fa-solid fa-circle-check"></i>
                                         <span>Получил посылку</span>
                                     </button>
@@ -638,7 +675,7 @@
             temp.select();
             document.execCommand('copy');
             document.body.removeChild(temp);
-            showToast('Треק-номер скопирован в буфер!');
+            showToast('Трек-номер скопирован в буфер!');
         }
 
         function showToast(msg) {
