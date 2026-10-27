@@ -14,7 +14,7 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBsOFq2VG4QuentYWgsgEbDKEIZVWRNBI8",
@@ -36,9 +36,7 @@
         window.updateDoc = updateDoc;
         window.deleteDoc = deleteDoc;
         window.doc = doc;
-        window.setDoc = setDoc;
 
-        // Trigger load after Firebase is ready
         window.dispatchEvent(new Event('firebase-ready'));
     </script>
 
@@ -46,17 +44,6 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        brand: {
-                            50: '#ecfdf5',
-                            100: '#d1fae5',
-                            500: '#10b981',
-                            600: '#059669',
-                            700: '#047857',
-                            800: '#065f46',
-                            900: '#064e3b',
-                        }
-                    },
                     fontFamily: {
                         sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
                     }
@@ -139,7 +126,7 @@
                     <i class="fa-solid fa-store"></i>
                 </div>
                 <div>
-                    <div class="text-xs font-semibold text-blue-600">Ожидает</div>
+                    <div class="text-xs font-semibold text-blue-600">Ожидает / Доставка</div>
                     <div id="stat-pickup" class="text-base sm:text-xl font-bold text-slate-900">0</div>
                 </div>
             </div>
@@ -176,25 +163,16 @@
                         🚚 В пути (<span id="count-transit">0</span>)
                     </button>
                     <button onclick="setStatusFilter('pickup')" id="filter-pickup" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 bg-slate-100 text-slate-600 hover:bg-slate-200">
-                        📦 Ожидает получения (<span id="count-pickup">0</span>)
+                        📦 Ожидает / На дом (<span id="count-pickup">0</span>)
                     </button>
                     <button onclick="setStatusFilter('delivered')" id="filter-delivered" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 bg-slate-100 text-slate-600 hover:bg-slate-200">
                         ✅ Доставлено (<span id="count-delivered">0</span>)
                     </button>
                 </div>
-
-                <div class="flex items-center gap-1 text-xs">
-                    <span class="text-slate-400 hidden sm:inline">Магазин:</span>
-                    <select id="storeFilter" onchange="renderOrders()" class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-700 focus:outline-none focus:border-emerald-500">
-                        <option value="all">Все магазины</option>
-                        <option value="temu">Temu</option>
-                        <option value="ali">AliExpress</option>
-                    </select>
-                </div>
             </div>
         </div>
 
-        <!-- Admin Control Panel (Hidden by default) -->
+        <!-- Admin Control Panel -->
         <div id="adminPanel" class="hidden bg-emerald-50 border border-emerald-200 rounded-2xl p-4 shadow-sm flex items-center justify-between gap-3 animate-fade-in">
             <div class="flex items-center gap-2.5">
                 <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm">
@@ -202,13 +180,13 @@
                 </div>
                 <div>
                     <h4 class="text-xs font-bold text-emerald-900">Режим менеджера активен</h4>
-                    <p class="text-[11px] text-emerald-700">Вы можете добавлять, редактировать и удалять посылки.</p>
+                    <p class="text-[11px] text-emerald-700">Полный доступ: добавление, редактирование и удаление посылок.</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="openOrderModal()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5">
                     <i class="fa-solid fa-plus"></i>
-                    <span>Добавить посилку</span>
+                    <span>Добавить посылку</span>
                 </button>
                 <button onclick="logoutAdmin()" class="px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold rounded-xl transition">
                     Выйти
@@ -217,9 +195,7 @@
         </div>
 
         <!-- Order List Container -->
-        <div id="ordersContainer" class="space-y-4">
-            <!-- Dynamic Cards -->
-        </div>
+        <div id="ordersContainer" class="space-y-4"></div>
 
         <!-- Empty State Container -->
         <div id="emptyState" class="hidden bg-white rounded-2xl p-8 text-center border border-slate-200 shadow-xs my-6">
@@ -253,7 +229,7 @@
     <div id="orderModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 animate-fade-in space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center">
-                <h3 id="modalTitle" class="text-sm font-bold text-slate-900">Добавить посилку</h3>
+                <h3 id="modalTitle" class="text-sm font-bold text-slate-900">Добавить посылку</h3>
                 <button onclick="closeOrderModal()" class="text-slate-400 hover:text-slate-600 text-sm"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <input type="hidden" id="editOrderId">
@@ -282,6 +258,7 @@
                         <select id="formStatus" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500">
                             <option value="transit">🚚 В пути</option>
                             <option value="pickup">📦 Ожидает получения</option>
+                            <option value="home_delivery">🏠 В дороге до дома</option>
                             <option value="delivered">✅ Доставлено</option>
                         </select>
                     </div>
@@ -395,9 +372,9 @@
             document.getElementById('modalTitle').innerText = 'Добавить посылку';
 
             if (orderId) {
-                const item = orders.find(o => o.firebaseId === orderId || o.id === orderId);
+                const item = orders.find(o => o.firebaseId === orderId);
                 if (item) {
-                    document.getElementById('editOrderId').value = item.firebaseId || item.id;
+                    document.getElementById('editOrderId').value = item.firebaseId;
                     document.getElementById('formTitle').value = item.title || '';
                     document.getElementById('formDesc').value = item.description || '';
                     document.getElementById('formStore').value = item.store || '';
@@ -466,15 +443,11 @@
             }
         }
 
-        // Regular users can only toggle picked-up status or mark delivered/ready
-        async function toggleCollectedStatus(firebaseId, currentStatus) {
-            let newStatus = currentStatus === 'delivered' ? 'transit' : 'delivered';
-            if (currentStatus === 'transit') newStatus = 'pickup';
-            else if (currentStatus === 'pickup') newStatus = 'delivered';
-
+        // User confirmation button: Marks package as 'delivered' when it's in 'pickup' or 'home_delivery'
+        async function markAsReceived(firebaseId) {
             try {
-                await window.updateDoc(window.doc(window.db, "shipments", firebaseId), { status: newStatus });
-                showToast("Статус обновлен!");
+                await window.updateDoc(window.doc(window.db, "shipments", firebaseId), { status: 'delivered' });
+                showToast("Посылка отмечена как полученная!");
                 loadOrdersFromFirebase();
             } catch (e) {
                 console.error("Error updating status:", e);
@@ -504,7 +477,6 @@
         function renderOrders() {
             const container = document.getElementById('ordersContainer');
             const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
-            const storeVal = document.getElementById('storeFilter').value.toLowerCase();
             
             const clearBtn = document.getElementById('clearSearchBtn');
             if (searchVal.length > 0) clearBtn.classList.remove('hidden');
@@ -512,7 +484,7 @@
 
             const totalCount = orders.length;
             const transitCount = orders.filter(o => o.status === 'transit').length;
-            const pickupCount = orders.filter(o => o.status === 'pickup').length;
+            const pickupCount = orders.filter(o => o.status === 'pickup' || o.status === 'home_delivery').length;
             const deliveredCount = orders.filter(o => o.status === 'delivered').length;
 
             document.getElementById('stat-total').innerText = totalCount;
@@ -526,17 +498,17 @@
             document.getElementById('count-delivered').innerText = deliveredCount;
 
             const filtered = orders.filter(item => {
-                const matchesStatus = (currentStatusFilter === 'all') || (item.status === currentStatusFilter);
-                let matchesStore = true;
-                if (storeVal === 'temu') matchesStore = item.store.toLowerCase().includes('temu');
-                if (storeVal === 'ali') matchesStore = item.store.toLowerCase().includes('ali');
+                let matchesStatus = true;
+                if (currentStatusFilter === 'transit') matchesStatus = (item.status === 'transit');
+                else if (currentStatusFilter === 'pickup') matchesStatus = (item.status === 'pickup' || item.status === 'home_delivery');
+                else if (currentStatusFilter === 'delivered') matchesStatus = (item.status === 'delivered');
 
                 const matchesSearch = (item.title && item.title.toLowerCase().includes(searchVal)) || 
                                       (item.description && item.description.toLowerCase().includes(searchVal)) || 
                                       (item.store && item.store.toLowerCase().includes(searchVal)) ||
                                       (item.trackingNumber && item.trackingNumber.toLowerCase().includes(searchVal));
 
-                return matchesStatus && matchesStore && matchesSearch;
+                return matchesStatus && matchesSearch;
             });
 
             if (filtered.length === 0) {
@@ -553,6 +525,7 @@
         function createOrderCardHtml(order) {
             const isDelivered = order.status === 'delivered';
             const isPickup = order.status === 'pickup';
+            const isHomeDelivery = order.status === 'home_delivery';
 
             let storeBadge = 'bg-slate-800 text-white';
             if (order.store.toLowerCase().includes('ali')) storeBadge = 'bg-red-600 text-white';
@@ -563,23 +536,29 @@
             if (isPickup) {
                 statusBadge = 'bg-blue-50 text-blue-700 border-blue-200';
                 statusText = '📦 Ожидает получения';
+            } else if (isHomeDelivery) {
+                statusBadge = 'bg-purple-50 text-purple-700 border-purple-200';
+                statusText = '🏠 В дороге до дома';
             } else if (isDelivered) {
                 statusBadge = 'bg-emerald-50 text-emerald-700 border-emerald-200';
                 statusText = '✅ Доставлено';
             }
 
             let progressPercent = '50%';
-            if (isPickup) progressPercent = '80%';
+            if (isPickup || isHomeDelivery) progressPercent = '80%';
             if (isDelivered) progressPercent = '100%';
 
             let cardIconBg = 'bg-amber-50 text-amber-600 border-amber-100';
-            if (isPickup) cardIconBg = 'bg-blue-50 text-blue-600 border-blue-100';
+            if (isPickup || isHomeDelivery) cardIconBg = 'bg-blue-50 text-blue-600 border-blue-100';
             if (isDelivered) cardIconBg = 'bg-emerald-50 text-emerald-600 border-emerald-100';
 
             let trackUrl = 'https://israelpost.co.il';
             if (order.store.toLowerCase().includes('gaash') || order.trackingNumber.startsWith('TMU')) {
                 trackUrl = 'https://www.gaashworldwide.com/';
             }
+
+            // Show receive button only if status is pickup or home_delivery
+            const canUserMarkReceived = (isPickup || isHomeDelivery);
 
             return `
                 <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden transition-all duration-200 hover:shadow-md animate-fade-in">
@@ -622,7 +601,7 @@
                             <div class="flex justify-between items-center text-[11px] text-slate-400 font-medium">
                                 <span class="flex items-center gap-1 text-emerald-600 font-semibold"><i class="fa-solid fa-circle-check"></i> Оформлено</span>
                                 <span class="flex items-center gap-1 ${order.status === 'transit' ? 'text-amber-600 font-bold' : 'text-emerald-600'}"><i class="fa-solid fa-plane-departure"></i> В пути</span>
-                                <span class="flex items-center gap-1 ${isPickup ? 'text-blue-600 font-bold animate-pulse' : (isDelivered ? 'text-emerald-600' : '')}"><i class="fa-solid fa-store"></i> Ожидает</span>
+                                <span class="flex items-center gap-1 ${(isPickup || isHomeDelivery) ? 'text-blue-600 font-bold animate-pulse' : (isDelivered ? 'text-emerald-600' : '')}"><i class="fa-solid fa-store"></i> Ожидает</span>
                                 <span class="flex items-center gap-1 ${isDelivered ? 'text-emerald-600 font-bold' : ''}"><i class="fa-solid fa-house"></i> Вручено</span>
                             </div>
                         </div>
@@ -633,12 +612,15 @@
                                 <strong class="font-mono font-bold text-slate-800 text-xs tracking-tight break-all">${escapeHtml(order.trackingNumber)}</strong>
                             </div>
 
-                            <div class="flex items-center gap-1 shrink-0 self-end sm:self-auto">
-                                <button onclick="toggleCollectedStatus('${order.firebaseId}', '${order.status}')" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg font-semibold flex items-center gap-1 transition active:scale-95" title="Отметить статус">
-                                    <i class="fa-solid fa-check-double"></i>
-                                    <span>Отметить статус</span>
-                                </button>
-                                <button onclick="copyTracking('${order.trackingNumber}')" class="px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg font-semibold flex items-center gap-1 transition active:scale-95" title="Скопировать">
+                            <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-auto">
+                                ${canUserMarkReceived ? `
+                                    <button onclick="markAsReceived('${order.firebaseId}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1.5 transition active:scale-95 shadow-xs animate-pulse">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                        <span>Получил посылку</span>
+                                    </button>
+                                ` : ''}
+
+                                <button onclick="copyTracking('${order.trackingNumber}')" class="px-2.5 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg font-semibold flex items-center gap-1 transition active:scale-95" title="Скопировать">
                                     <i class="fa-regular fa-copy text-emerald-600"></i>
                                 </button>
                                 <a href="${trackUrl}" target="_blank" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg" title="Открыть сайт"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
@@ -656,7 +638,7 @@
             temp.select();
             document.execCommand('copy');
             document.body.removeChild(temp);
-            showToast('Трек-номер скопирован в буфер!');
+            showToast('Треק-номер скопирован в буфер!');
         }
 
         function showToast(msg) {
