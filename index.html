@@ -436,7 +436,7 @@
                 closeOrderModal();
                 loadOrdersFromFirebase();
 
-                // Send EmailJS for Admin action (template_yuqkr5c)
+                // Send EmailJS for Admin action (template_yuqkr5c) - relies strictly on EmailJS template settings
                 sendEmailNotification('template_yuqkr5c', trackingNumber, getStatusText(status));
             } catch (e) {
                 console.error("Error saving document: ", e);
@@ -463,7 +463,7 @@
                 showToast("Посылка отмечена как полученная!");
                 loadOrdersFromFirebase();
 
-                // Send EmailJS for Grandma action (template_au325wt)
+                // Send EmailJS for Grandma action (template_au325wt) - relies strictly on EmailJS template settings
                 sendEmailNotification('template_au325wt', trackingNumber, '✅ Доставлено');
             } catch (e) {
                 console.error("Error updating status:", e);
@@ -471,12 +471,11 @@
             }
         }
 
-        // EmailJS Sender Helper function
+        // EmailJS Sender Helper function (clean parameters without overriding target email)
         function sendEmailNotification(templateId, trackingNumber, statusText) {
             const templateParams = {
                 tracking_number: trackingNumber,
-                status: statusText,
-                to_email: 'andreyy0902@gmail.com'
+                status: statusText
             };
 
             emailjs.send('service_o9el6xc', templateId, templateParams)
