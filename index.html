@@ -436,7 +436,7 @@
                 closeOrderModal();
                 loadOrdersFromFirebase();
 
-                // Send EmailJS for Admin action (template_yuqkr5c) - relies strictly on EmailJS template settings
+                // Send EmailJS for Admin action (template_yuqkr5c) to both emails
                 sendEmailNotification('template_yuqkr5c', trackingNumber, getStatusText(status));
             } catch (e) {
                 console.error("Error saving document: ", e);
@@ -456,14 +456,14 @@
             }
         }
 
-        // User confirmation button (Grandma): Marks package as 'delivered' and sends template_au325wt
+        // User confirmation button (Grandma): Marks package as 'delivered' and sends template_au325wt to both emails
         async function markAsReceived(firebaseId, trackingNumber) {
             try {
                 await window.updateDoc(window.doc(window.db, "shipments", firebaseId), { status: 'delivered' });
                 showToast("Посылка отмечена как полученная!");
                 loadOrdersFromFirebase();
 
-                // Send EmailJS for Grandma action (template_au325wt) - relies strictly on EmailJS template settings
+                // Send EmailJS for Grandma action (template_au325wt) to both emails
                 sendEmailNotification('template_au325wt', trackingNumber, '✅ Доставлено');
             } catch (e) {
                 console.error("Error updating status:", e);
@@ -471,19 +471,24 @@
             }
         }
 
-        // EmailJS Sender Helper function (clean parameters without overriding target email)
+        // EmailJS Sender Helper function sending to both specified emails in parallel
         function sendEmailNotification(templateId, trackingNumber, statusText) {
-            const templateParams = {
-                tracking_number: trackingNumber,
-                status: statusText
-            };
+            const recipients = ['yemelin2018@gmail.com', 'natali17031956@gmail.com'];
+            
+            recipients.forEach(email => {
+                const templateParams = {
+                    tracking_number: trackingNumber,
+                    status: statusText,
+                    to_email: email
+                };
 
-            emailjs.send('service_o9el6xc', templateId, templateParams)
-                .then(function(response) {
-                    console.log('SUCCESS!', response.status, response.text);
-                }, function(error) {
-                    console.log('FAILED...', error);
-                });
+                emailjs.send('service_o9el6xc', templateId, templateParams)
+                    .then(function(response) {
+                        console.log('SUCCESS sent to ' + email, response.status, response.text);
+                    }, function(error) {
+                        console.log('FAILED for ' + email, error);
+                    });
+            });
         }
 
         function getStatusText(status) {
